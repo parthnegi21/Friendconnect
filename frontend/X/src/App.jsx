@@ -8,6 +8,7 @@ import Details from './pages/Details'
 import Search from './pages/Search'
 import Request from './pages/Request'
 import Myself from './pages/myself'
+import Profile from './pages/profile';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -24,6 +25,7 @@ function App() {
         <Route path="/search" element={<Search/>}></Route>
         <Route path="/request" element={<Request/>}></Route>
         <Route path="/myself" element={<Myself/>}></Route>
+        <Route path="/profile" element={<Profile/>}></Route>
         
       
       </Routes>
