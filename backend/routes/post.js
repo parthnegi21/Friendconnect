@@ -9,6 +9,8 @@ router.post("/post",authMiddleware,async(req,res)=>{
 
     const post = await Post.create({
          userId : req.user.user._id,
+         name:req.user.user.name,
+         username:req.user.user.username,
         title:req.body.title,
         description:req.body.description
     })
@@ -19,28 +21,29 @@ if(post){
 })
 
 
-router.get("/bulk",authMiddleware,async(req,res)=>{
-    const userId = req.headers.id
-    
-    const post = await Post.find({userId})
-   
-      if(post){
-        const mapped=post.map((post)=>({
-            title:post.title,
-            description:post.description
-        }))
 
-        res.json({
-           post:mapped
-        })
-      }
-    else{
-        res.json({msg:"no post found"})
+
+
+router.get('/bulk', authMiddleware, async (req, res) => {
+    try {
+        const Id = req.user.user._id; 
+          console.log(Id)
+        
+        const posts = await Post.find({ userId: { $ne: Id } }); 
+        
+
+        res.status(200).json({
+            success: true,
+            posts:posts,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error, could not fetch posts',
+        });
     }
-     
-
-})
-
+});
 
 
 

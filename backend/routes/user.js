@@ -22,6 +22,7 @@ router.post("/signup",async(req,res)=>{
 const user = await User.create({
     username :req.body.username,
      email : req.body.email,
+     name:req.body.name,
      password :req.body.password
 })
 res.json(user)
@@ -47,16 +48,45 @@ res.json("correct token")
 })
 
 
+router.get("/bulk",authMiddleware,async(req,res)=>{
+    const filter = req.query.filter || "";
+    const userId = req.user._id;  
+    
+    
+      const users = await User.find({
+        $and: [
+          { _id: { $ne: userId } },  
+          {
+            $or: [
+                { username: { "$regex": filter, "$options": "i" } },
+             
+            ]
+          }
+        ]
+      });
+    
+      res.json({
+        users: users.map(user => ({
+          username: user.username,
+         name:user.name,
+          _id: user._id
+        }))
+      });
+    
+  });
+  
+
+
 
 // router to add bio and name
 router.post("/details", authMiddleware, async (req, res) => {
-    const { myname, bio } = req.body;
+    const { firstname ,lastname,profession, bio } = req.body;
     const user = req.user
   
     console.log(user.user.username)
 
     const updatedUser = await User.findByIdAndUpdate(user.user._id, {
-        name: myname,
+        profession:profession,
         bio: bio
     }, { new: true });
 

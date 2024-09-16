@@ -1,5 +1,5 @@
 // SignUp.jsx
-
+import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -10,6 +10,7 @@ const SignUp = () => {
         name: '',
         password: ''
     });
+    const navigate = useNavigate()
 
     const handleChange = (e) => {
         setFormData({
@@ -21,11 +22,12 @@ const SignUp = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('/api/register', formData);
-            // Handle successful registration (e.g., redirect or show a message)
+            const response = await axios.post('http://localhost:3000/user/signup', formData);
+            
+             navigate("/details")
             console.log('Registration successful:', response.data);
         } catch (error) {
-            // Handle registration error (e.g., show an error message)
+            
             console.error('Registration error:', error.response.data);
         }
     };
@@ -59,7 +61,18 @@ const SignUp = () => {
                         className=" mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                     />
                 </div>
-
+                <div>
+                    <label htmlFor="name" className="text-white block text-sm font-medium text-gray-700">Name</label>
+                    <input style={{backgroundColor:"#1e1e21"}}
+                        type="name"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        className=" mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    />
+                </div>
                 <div>
                     <label  htmlFor="password" className="text-white block text-sm font-medium text-gray-700">Password</label>
                     <input style={{backgroundColor:"#1e1e21"}}
@@ -80,7 +93,9 @@ const SignUp = () => {
                 </button>
                 <div className='flex justify-center'>
                 <div className="flex justify-center"> Already have a Account? </div>
-                <div className='ml-2 text-blue-300 underline'>Signin</div></div>
+                <div onClick={(()=>{
+                    navigate("/signin")
+                })} className='ml-2 text-blue-300 hover:underline cursor-pointer '>Signin</div></div>
             </form>
         </div>
         </div>

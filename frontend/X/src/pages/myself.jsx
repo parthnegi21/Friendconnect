@@ -1,6 +1,10 @@
 import Belowbar from "../components/Belowbar";
 
 export default function Myself(){
+  
+   
+    
+
 
     return(<>
     <div className="w-full h-screen " style={{backgroundColor:"#1e1e21"}} >

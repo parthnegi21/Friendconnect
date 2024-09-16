@@ -51,8 +51,8 @@ router.get("/incoming-request",authMiddleware,async(req,res)=>{
         requests: incomingRequests.map(request => ({
           from: 
           {id:request.fromUserId,
-       
-         username:request.fromUsername
+          username:request.fromUsername,
+          name:request.name
           }
 
         })),

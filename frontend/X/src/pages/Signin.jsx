@@ -1,31 +1,38 @@
 // SignIn.jsx
-
+import { useNavigate } from 'react-router-dom';
 import React, { useState } from 'react';
 import axios from 'axios';
 
 const SignIn = () => {
     const [formData, setFormData] = useState({
-        email: '',
+        username: '',
         password: ''
     });
-
+    const navigate = useNavigate()
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
     };
-
+  
     const handleSubmit = async (e) => {
         e.preventDefault();
-        try {
-            const response = await axios.post('/api/login', formData);
-            // Handle successful login (e.g., redirect or show a message)
-            console.log('Login successful:', response.data);
-        } catch (error) {
-            // Handle login error (e.g., show an error message)
-            console.error('Login error:', error.response.data);
-        }
+        
+            const response = await axios.post('http://localhost:3000/user/signin', formData);
+            
+            if(response.data.token){
+            localStorage.setItem("token",response.data.token)
+            navigate("/details")
+            }
+            else{
+                console.log(response.data.msg)
+            }
+
+
+        
+           
+        
     };
 
     return (
@@ -34,13 +41,13 @@ const SignIn = () => {
                 <h2 className="text-2xl font-bold text-center mb-6">Sign In</h2>
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label htmlFor="email" className="text-white block text-sm font-medium text-gray-700">Email</label>
+                        <label htmlFor="username" className="text-white block text-sm font-medium text-gray-700">username</label>
                         <input
                             style={{ backgroundColor: "#1e1e21" }}
-                            type="email"
-                            id="email"
-                            name="email"
-                            value={formData.email}
+                            type="username"
+                            id="username"
+                            name="username"
+                            value={formData.username}
                             onChange={handleChange}
                             required
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
@@ -67,7 +74,9 @@ const SignIn = () => {
                     </button>
                     <div className='flex justify-center'>
                         <div className="flex justify-center">Don't have an account?</div>
-                        <div className='ml-2 text-blue-300 underline'>Sign Up</div>
+                        <div onClick={(()=>{
+                            navigate("/signup")
+                        })} className='ml-2 text-blue-300 hover:underline cursor-pointer'>Sign Up</div>
                     </div>
                 </form>
             </div>
