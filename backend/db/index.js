@@ -18,8 +18,26 @@ const postSchema=new mongoose.Schema({
 
 })
 
+const FriendRequestSchema = new mongoose.Schema({
+    fromUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    toUserId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    
+  fromUsername: {
+        type: String,
+        required: true
+      },
+    status: { 
+      type: String, 
+      enum: ['pending', 'accepted', 'rejected'], 
+      default: 'pending' 
+    },
+    createdAt: { type: Date, default: Date.now }
+  });
+
+
 const Post = mongoose.model('Post',postSchema)
 const User=mongoose.model('User',userSchema)
+const FriendRequest = mongoose.model('FriendRequest', FriendRequestSchema);
 
 
-module.exports = {User,Post};
+module.exports = {User,Post,FriendRequest};
