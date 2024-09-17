@@ -1,16 +1,15 @@
 import { useEffect, useState } from "react";
 import Belowbar from "../components/Belowbar";
 import axios from "axios";
-import { useNavigate } from "react-router-dom"; 
+import { useNavigate } from "react-router-dom";
 
 export default function Search() {
     const [filter, setFilter] = useState("");
     const [users, setUsers] = useState([]);
     const navigate = useNavigate();
+    const authtoken = localStorage.getItem("token");
 
     useEffect(() => {
-        const authtoken = localStorage.getItem("token");
-
         if (!authtoken) {
             navigate("/");
             return;
@@ -37,11 +36,9 @@ export default function Search() {
         };
 
         fetchUsers();
-    }, [filter, navigate]); 
+    }, [filter, navigate, authtoken]);
 
     const handleSendRequest = async (userId, index) => {
-        const authtoken = localStorage.getItem("token");
-
         try {
             const response = await axios.post(
                 "https://friendconnect-4.onrender.com/friend/send-request",
@@ -54,11 +51,28 @@ export default function Search() {
                 }
             );
 
-            setUsers((prevUsers) =>
-                prevUsers.map((user, i) => 
-                    i === index ? { ...user, status: response.data.status } : user
-                )
-            );
+            // Re-fetch the user list after sending the request
+            const fetchUsers = async () => {
+                try {
+                    const response = await axios.get(
+                        `https://friendconnect-4.onrender.com/user/bulk?filter=${filter}`,
+                        {
+                            headers: {
+                                Authorization: `Bearer ${authtoken}`,
+                                "Content-Type": "application/json",
+                            },
+                        }
+                    );
+
+                    if (response.data) {
+                        setUsers(response.data.users || []);
+                    }
+                } catch (error) {
+                    console.log("Error fetching users:", error);
+                }
+            };
+
+            fetchUsers();
         } catch (error) {
             console.log("Error sending friend request:", error);
         }
