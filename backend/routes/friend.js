@@ -1,6 +1,6 @@
 const express = require("express")
 const authMiddleware = require("../middleware/auth")
-const { FriendRequest } = require("../db")
+const { FriendRequest,User } = require("../db")
 const userMiddleware = require("../middleware/user")
 const router = express.Router()
 
@@ -14,11 +14,20 @@ router.post("/send-request",authMiddleware,async(req,res)=>{
  console.log(fromUsername)
 
 
-    const existingRequest = await FriendRequest.findOne({ fromUserId: fromUserId, toUserId: toUserId });
+ const existingRequest = await FriendRequest.findOne({
+    $or: [
+        { fromUserId: fromUserId, toUserId: toUserId },
+        { fromUserId: toUserId, toUserId: fromUserId }
+    ]
+});
 
     if (existingRequest) {
-      return res.status(400).json({ msg: 'Request already sent.' });
+      return res.json({ msg: 'Request already sent.',
+        status:existingRequest.status
+       });
     }
+  
+    else{
     
 
     const Request = new FriendRequest({
@@ -34,6 +43,7 @@ router.post("/send-request",authMiddleware,async(req,res)=>{
         res.json({msg:"friend request send successfully"})
     }
     await Request.save();
+}
 })
 
 
@@ -52,7 +62,7 @@ router.get("/incoming-request",authMiddleware,async(req,res)=>{
           from: 
           {id:request.fromUserId,
           username:request.fromUsername,
-          name:request.name
+          
           }
 
         })),
@@ -98,20 +108,49 @@ router.post("/respond-request", authMiddleware, async (req, res) => {
 );
 
 
-router.post("/friendlist",authMiddleware,async(req,res)=>{
-    userId = req.user.user._id
-    const friends = await FriendRequest.find({toUserId:userId,status:"accepted"})
-    console.log(friends)
 
-    if (!friends || friends.length === 0) {
-        return res.json({ msg: "No friends found" });
+router.get("/friendlist", authMiddleware, async (req, res) => {
+    const userId = req.user.user._id;
+
+    try {
+       
+        const friends = await FriendRequest.find({
+            $or: [{ toUserId: userId }, { fromUserId: userId }],
+            status: "accepted"
+        });
+
+        if (!friends || friends.length === 0) {
+            return res.json({ msg: "No friends found" });
+        }
+
+      
+        const friendList = await Promise.all(friends.map(async (friend) => {
+            let friendUser;
+            
+            if (friend.toUserId.toString() === userId) {
+             
+                friendUser = await User.findById(friend.fromUserId);
+            } else {
+                
+                friendUser = await User.findById(friend.toUserId);
+            }
+
+            return {
+                username: friendUser.username,
+                name:friendUser.name
+               
+            };
+        }));
+
+        res.json({ friends: friendList });
+    } catch (error) {
+        console.error("Error fetching friend list:", error);
+        res.status(500).json({ error: "Server error" });
     }
+});
 
-    const friendList = friends.map(friend => ({
-        username: friend.fromUsername
-    }));
 
-    res.json({ friends: friendList });
-})
+
+
 
 module.exports=router

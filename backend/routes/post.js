@@ -18,6 +18,9 @@ router.post("/post",authMiddleware,async(req,res)=>{
 if(post){
     res.json({msg:"post create successfully"})
 }
+else{
+    res.json({msg:"some internal error occured"})
+}
 })
 
 
@@ -26,7 +29,8 @@ if(post){
 
 router.get('/bulk', authMiddleware, async (req, res) => {
     try {
-        const Id = req.user.user._id; 
+        const Id = req.user.user._id
+       
           console.log(Id)
         
         const posts = await Post.find({ userId: { $ne: Id } }); 
@@ -35,6 +39,7 @@ router.get('/bulk', authMiddleware, async (req, res) => {
         res.status(200).json({
             success: true,
             posts:posts,
+          
         });
     } catch (error) {
         console.error(error);
@@ -46,6 +51,47 @@ router.get('/bulk', authMiddleware, async (req, res) => {
 });
 
 
+
+
+router.get('/mypost', authMiddleware, async (req, res) => {
+
+        const Id = req.user.user._id; 
+        const username = req.user.user.username
+        const name = req.user.user.name 
+        
+        const posts = await Post.find({userId:Id}); 
+        
+        if(posts){
+            res.json({posts:posts,
+                username:username,
+                name:name
+            })
+        }
+        else{
+            res.json({
+                msg:"no posts uploaded"
+            })
+        }
+    
+});
+
+
+router.get("/userpost",authMiddleware,async(req,res)=>{
+const userId = req.headers["user-id"]
+
+
+const response = await Post.find({userId})
+
+if(response){
+    res.json({
+        posts:response
+    })
+}
+else{
+    res.json("no post uploaded")
+}
+
+})
 
 
 

@@ -1,6 +1,6 @@
 const express = require("express")
 const router = express.Router()
-const {User} = require("../db")
+const {User, FriendRequest} = require("../db")
 const userMiddleware = require("../middleware/user")
 const jwt = require('jsonwebtoken');
 const authMiddleware = require("../middleware/auth");
@@ -42,43 +42,71 @@ res.json({msg:"sign in successfully",
 
 })
 
-router.post("/check",authMiddleware,(req,res)=>{
-res.json("correct token")
+router.get("/check",authMiddleware,(req,res)=>{
+res.json({msg:"hello"})
 
 })
 
 
-router.get("/bulk",authMiddleware,async(req,res)=>{
+
+
+router.get("/bulk", authMiddleware, async (req, res) => {
     const filter = req.query.filter || "";
-    const userId = req.user._id;  
+    const userId = req.user.user._id;
     
-    
-      const users = await User.find({
-        $and: [
-          { _id: { $ne: userId } },  
-          {
+    try {
+        // Fetch all users except the current user with the search filter
+        const users = await User.find({
+            _id: { $ne: userId }, // Exclude current user
+            username: { "$regex": filter, "$options": "i" }  // Apply filter to usernames
+        });
+
+        // Fetch all friend requests involving the current user
+        const friendRequests = await FriendRequest.find({
             $or: [
-                { username: { "$regex": filter, "$options": "i" } },
-             
+                { fromUserId: userId }, // Requests sent by the current user
+                { toUserId: userId }    // Requests received by the current user
             ]
-          }
-        ]
-      });
-    
-      res.json({
-        users: users.map(user => ({
-          username: user.username,
-         name:user.name,
-          _id: user._id
-        }))
-      });
-    
-  });
+        });
+
+        // Create a map to store the friend request status for each user
+        const friendStatusMap = {};
+        friendRequests.forEach(request => {
+            // Current user sent the request (outgoing request)
+            if (request.fromUserId.toString() === userId) {
+                friendStatusMap[request.toUserId] = request.status;
+            }
+            // Current user received the request (incoming request)
+            else if (request.toUserId.toString() === userId) {
+                friendStatusMap[request.fromUserId] = request.status;
+            }
+        });
+
+        // Map users to include their friend request status
+        const userList = users.map(user => {
+            const status = friendStatusMap[user._id.toString()] || 'none'; // Default to 'none' if no request found
+            return {
+                _id: user._id,
+                username: user.username,
+                name: user.name,
+                status: status
+            };
+        });
+
+        res.json({
+            users: userList
+        });
+    } catch (error) {
+        console.error("Error fetching users and friend requests:", error);
+        res.status(500).json({ error: "Server error" });
+    }
+});
+
   
 
 
 
-// router to add bio and name
+
 router.post("/details", authMiddleware, async (req, res) => {
     const { firstname ,lastname,profession, bio } = req.body;
     const user = req.user

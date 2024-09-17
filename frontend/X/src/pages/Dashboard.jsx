@@ -11,11 +11,11 @@ export default function Dashboard() {
             try {
                 const response = await axios.get("http://localhost:3000/post/bulk", {
                     headers: {
-                        "Authorization": `Bearer ${authtoken}`,
+                       "Authorization": `Bearer ${authtoken}`,
                         "Content-Type": "application/json",
                     },
                 });
-                console.log(response.data)
+                
                 setData(response.data.posts); 
             } catch (error) {
                 console.error("Error fetching posts:", error);
@@ -28,9 +28,11 @@ export default function Dashboard() {
         <>
             <div className="w-full min-h-screen" style={{ backgroundColor: "#1e1e21" }}>
                 <div>
+                    <div className="text-2xl text-white flex justify-center mb-10 pt-5">Dashboasd</div>
+                    
                     {data.length > 0 ? (
                         data.map((item, index) => (
-                            <div className="flex justify-center" key={index}>
+                            <div  className="flex justify-center" key={index}>
                                 <div className="w-80 mt-6 h-96 border rounded">
                                     <div className="flex">
                                         <div className="text-white w-10 h-10 border flex justify-center items-center text-xl font-bold rounded-full mt-2 ml-2 bg-green-500">
