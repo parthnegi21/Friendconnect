@@ -17,7 +17,7 @@ const SignIn = () => {
         const checkToken = async () => {
             try {
                 if (authtoken) {
-                    const response = await axios.get("http://localhost:3000/user/check", {
+                    const response = await axios.get("https://friendconnect-4.onrender.com/user/check", {
                         headers: {
                             Authorization: `Bearer ${authtoken}`,
                             "Content-Type": "application/json",
@@ -51,7 +51,7 @@ const SignIn = () => {
         setError(null); // Reset error state
 
         try {
-            const response = await axios.post('http://localhost:3000/user/signin', formData);
+            const response = await axios.post('https://friendconnect-4.onrender.com/user/signin', formData);
 
             if (response.data.token) {
                 localStorage.setItem("token", response.data.token);

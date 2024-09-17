@@ -12,7 +12,7 @@ export default function Myself() {
         const userHandle = async () => {
             try {
                 const authtoken = localStorage.getItem("token");
-                const response = await axios.get("http://localhost:3000/post/mypost", {
+                const response = await axios.get("https://friendconnect-4.onrender.com/post/mypost", {
                     headers: {
                         "Authorization": `Bearer ${authtoken}`,
                         "Content-Type": "application/json"

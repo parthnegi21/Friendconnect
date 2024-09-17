@@ -1,21 +1,24 @@
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import Loader from "../components/Loader"; // Import your Loader component
 
 export default function Home() {
     const navigate = useNavigate();
+    const [loading, setLoading] = useState(true); // State for loading
 
     useEffect(() => {
         const checkAuth = async () => {
             const authtoken = localStorage.getItem("token");
 
             if (!authtoken) {
+                setLoading(false); // Stop loading
                 navigate("/");
                 return;
             }
 
             try {
-                const response = await axios.get("http://localhost:3000/user/check", {
+                const response = await axios.get("https://friendconnect-4.onrender.com/user/check", {
                     headers: {
                         "Authorization": `Bearer ${authtoken}`,
                         "Content-Type": "application/json",
@@ -23,12 +26,15 @@ export default function Home() {
                 });
 
                 if (response.status === 200) {
+                    setLoading(false); // Stop loading
                     navigate("/dashboard");
                 } else {
+                    setLoading(false); // Stop loading
                     navigate("/");
                 }
             } catch (error) {
                 console.error("Error during token check:", error);
+                setLoading(false); // Stop loading
                 navigate("/");
             }
         };
@@ -38,6 +44,7 @@ export default function Home() {
 
     return (
         <div className="w-full h-screen" style={{ backgroundColor: "#1e1e21" }}>
+            {loading && <Loader />} {/* Show loader when loading */}
             <div className="flex justify-end">
                 <button 
                     onClick={() => navigate("/signup")}

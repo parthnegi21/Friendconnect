@@ -19,7 +19,7 @@ export default function Search() {
         const fetchUsers = async () => {
             try {
                 const response = await axios.get(
-                    `http://localhost:3000/user/bulk?filter=${filter}`,
+                    `https://friendconnect-4.onrender.com/user/bulk?filter=${filter}`,
                     {
                         headers: {
                             Authorization: `Bearer ${authtoken}`,
@@ -44,7 +44,7 @@ export default function Search() {
 
         try {
             const response = await axios.post(
-                "http://localhost:3000/friend/send-request",
+                "https://friendconnect-4.onrender.com/friend/send-request",
                 { toUserId: userId },
                 {
                     headers: {
@@ -91,51 +91,49 @@ export default function Search() {
     };
 
     return (
-        <>
-            <div className="w-full min-h-screen" style={{ backgroundColor: "#1e1e21" }}>
-                <div className="flex justify-center">
-                    <input
-                        onChange={(e) => setFilter(e.target.value)}
-                        className="w-80 h-10 mt-5 pl-4 bg-gray-700 text-white text-xl rounded-2xl"
-                        placeholder="Search"
-                    />
-                </div>
-
-                <div className="mt-10">
-                    {users.length > 0 ? (
-                        users.map((user, index) => (
-                            <div className="w-full flex justify-center" key={user._id}>
-                                <div 
-                                    className="w-80 cursor-pointer flex flex-col items-center h-auto border mt-10 rounded p-4 space-y-3" 
-                                    style={{ backgroundColor: "rgb(49 49 51)" }}
-                                >
-                                    <div className="w-12 h-12 border rounded-full text-white flex justify-center items-center text-xl bg-green-500">
-                                        {user.name ? user.name[0] : "?"}
-                                    </div>
-
-                                    <div className="text-white text-xl">{user.username || "No Username"}</div>
-
-                                    <div className="text-white text-md">
-                                        {user.name || "Name"}
-                                    </div>
-
-                                    <button
-                                        onClick={() =>{ handleSendRequest(user._id, index);window.location.reload() }}
-                                        className={`h-8 rounded-xl w-28 ${getButtonStyle(user.status)}`}
-                                        disabled={user.status !== "none"} 
-                                    >
-                                        {getButtonText(user.status)}
-                                    </button>
-                                </div>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="text-white text-xl">No users found</div>
-                    )}
-                </div>
-
-                <Belowbar />
+        <div className="w-full min-h-screen" style={{ backgroundColor: "#1e1e21" }}>
+            <div className="flex justify-center">
+                <input
+                    onChange={(e) => setFilter(e.target.value)}
+                    className="w-80 h-10 mt-5 pl-4 bg-gray-700 text-white text-xl rounded-2xl"
+                    placeholder="Search"
+                />
             </div>
-        </>
+
+            <div className="mt-10">
+                {users.length > 0 ? (
+                    users.map((user, index) => (
+                        <div className="w-full flex justify-center" key={user._id}>
+                            <div 
+                                className="w-80 cursor-pointer flex flex-col items-center h-auto border mt-10 rounded p-4 space-y-3" 
+                                style={{ backgroundColor: "rgb(49 49 51)" }}
+                            >
+                                <div className="w-12 h-12 border rounded-full text-white flex justify-center items-center text-xl bg-green-500">
+                                    {user.name ? user.name[0] : "?"}
+                                </div>
+
+                                <div className="text-white text-xl">{user.username || "No Username"}</div>
+
+                                <div className="text-white text-md">
+                                    {user.name || "Name"}
+                                </div>
+
+                                <button
+                                    onClick={() => handleSendRequest(user._id, index)}
+                                    className={`h-8 rounded-xl w-28 ${getButtonStyle(user.status)}`}
+                                    disabled={user.status !== "none"} 
+                                >
+                                    {getButtonText(user.status)}
+                                </button>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="text-white text-xl">No users found</div>
+                )}
+            </div>
+
+            <Belowbar />
+        </div>
     );
 }

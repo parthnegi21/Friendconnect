@@ -10,6 +10,7 @@ const SignUp = () => {
         password: ''
     });
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false); // Loading state
     const navigate = useNavigate();
 
     // Check if the user is already authenticated
@@ -18,7 +19,7 @@ const SignUp = () => {
             const authtoken = localStorage.getItem("token");
             if (authtoken) {
                 try {
-                    const response = await axios.get("http://localhost:3000/user/check", {
+                    const response = await axios.get("https://friendconnect-4.onrender.com/user/check", {
                         headers: {
                             "Authorization": `Bearer ${authtoken}`,
                             "Content-Type": "application/json",
@@ -46,10 +47,11 @@ const SignUp = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError(''); // Clear previous errors
+        setLoading(true); // Set loading to true
 
         try {
-            const response = await axios.post('http://localhost:3000/user/signup', formData);
-            navigate("/signin"); // Redirect after successful signup
+            const response = await axios.post('https://friendconnect-4.onrender.com/user/signup', formData);
+            navigate("/login");
         } catch (error) {
             if (error.response && error.response.data) {
                 setError(error.response.data.message || 'Registration failed');
@@ -57,6 +59,8 @@ const SignUp = () => {
                 setError('An error occurred. Please try again.');
             }
             console.error('Registration error:', error);
+        } finally {
+            setLoading(false); // Set loading to false after completion
         }
     };
 
@@ -120,9 +124,10 @@ const SignUp = () => {
                     </div>
                     <button
                         type="submit"
-                        className="w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none"
+                        className={`w-full py-2 px-4 bg-indigo-600 text-white font-semibold rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                        disabled={loading} // Disable button while loading
                     >
-                        Sign Up
+                        {loading ? 'Signing Up...' : 'Sign Up'}
                     </button>
                     <div className='flex justify-center'>
                         <div className="flex justify-center">Already have an account?</div>
